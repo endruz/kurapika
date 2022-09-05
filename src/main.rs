@@ -18,8 +18,8 @@ mod auth;
 #[cfg(feature = "generator")]
 mod generator;
 mod rsa;
-// #[cfg(feature = "validator")]
-// mod validator;
+#[cfg(feature = "validator")]
+mod validator;
 
 fn main() {
     // let matches = Command::new(crate_name!())
@@ -54,4 +54,6 @@ fn main() {
     println!("CPU_ID: {}", cpu_id);
     println!("GPU_ID: {:?}", gpu_id);
     println!("auth_code: {}", auth_code);
+
+    println!("{}", validator::verify_auth_code(&auth_code));
 }
