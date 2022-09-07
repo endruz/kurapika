@@ -1,6 +1,5 @@
 // #[macro_use]
 // extern crate clap;
-
 extern crate hex;
 
 // Std
@@ -45,13 +44,24 @@ fn main() {
     let customer_name = String::from("XXXX公司");
     let deploy_date = String::from("2022-09-01");
     let expire_date = String::from("2022-09-30");
-    let auth_info = AuthInfo::new(app_name, customer_name, deploy_date, expire_date);
+    let auth_info = AuthInfo::new(app_name, customer_name, deploy_date, expire_date)
+        .unwrap_or_else(|err| {
+            eprintln!("error: {:?}", err);
+            process::exit(1);
+        });
     let auth_code = generate_auth_code(auth_info).unwrap_or_else(|err| {
         eprintln!("error: {:?}", err);
         process::exit(1);
     });
 
-    println!("auth_code: {}", auth_code);
+    // let auth_code = String::from("123");
+    // println!("auth_code: {}", auth_code);
 
-    println!("{:?}", validator::verify_auth_code(&auth_code));
+    match validator::verify_auth_code(&auth_code) {
+        Ok(_) => println!("Verification passed !!!"),
+        Err(err) => {
+            eprintln!("error: {:?}", err);
+            process::exit(1);
+        }
+    };
 }

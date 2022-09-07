@@ -22,20 +22,27 @@ pub fn generate_rsa_key(is_force: bool) -> Result<(), KurapikaError> {
         let mut rng = rand::thread_rng();
 
         let bits = 2048;
-        let private_key: RsaPrivateKey;
-
-        match RsaPrivateKey::new(&mut rng, bits) {
-            Ok(key) => private_key = key,
+        let private_key = match RsaPrivateKey::new(&mut rng, bits) {
+            Ok(key) => key,
             Err(_) => return Err(KurapikaError::GenerateKeyFailure),
         };
-
         let public_key = RsaPublicKey::from(&private_key);
 
+        // 创建 .kurapika
+        if !Path::new(DEFAULT_PATH).exists() {
+            match fs::create_dir(DEFAULT_PATH) {
+                Ok(_) => (),
+                Err(_) => return Err(KurapikaError::GenerateKeyFailure),
+            };
+        }
+
+        // 生成 id_rsa
         match private_key.write_pkcs8_pem_file(PRIVATE_KEY_FILE_DEFAULT_PATH, LineEnding::LF) {
             Ok(_) => (),
             Err(_) => return Err(KurapikaError::GenerateKeyFailure),
         };
 
+        // 生成 id_rsa.pub
         match public_key.write_public_key_pem_file(PUBLIC_KEY_FILE_DEFAULT_PATH, LineEnding::LF) {
             Ok(_) => (),
             Err(_) => return Err(KurapikaError::GenerateKeyFailure),
@@ -45,13 +52,8 @@ pub fn generate_rsa_key(is_force: bool) -> Result<(), KurapikaError> {
 }
 
 fn is_key_exist() -> bool {
-    if !Path::new(DEFAULT_PATH).exists() {
-        fs::create_dir(DEFAULT_PATH).unwrap();
-        false
-    } else {
-        Path::new(PRIVATE_KEY_FILE_DEFAULT_PATH).exists()
-            && Path::new(PUBLIC_KEY_FILE_DEFAULT_PATH).exists()
-    }
+    Path::new(PRIVATE_KEY_FILE_DEFAULT_PATH).exists()
+        && Path::new(PUBLIC_KEY_FILE_DEFAULT_PATH).exists()
 }
 
 fn get_private_key() -> Result<RsaPrivateKey, KurapikaError> {
@@ -119,6 +121,7 @@ pub fn sign(data: &str) -> Result<String, KurapikaError> {
         Err(_) => return Err(KurapikaError::SignFailure),
     };
     let sign_message = hex::encode_upper(sign_data);
+
     Ok(sign_message)
 }
 
@@ -126,7 +129,7 @@ pub fn sign(data: &str) -> Result<String, KurapikaError> {
 pub fn verify(data: &str, sign: &str) -> Result<(), KurapikaError> {
     let sign_data = match hex::decode(sign) {
         Ok(h) => h,
-        Err(_) => return Err(KurapikaError::VerifyFailure),
+        Err(_) => return Err(KurapikaError::SignVerifyFailure),
     };
     let public_key = get_public_key()?;
 
@@ -138,7 +141,7 @@ pub fn verify(data: &str, sign: &str) -> Result<(), KurapikaError> {
 
     match public_key.verify(padding, &hashed, sign_data.as_slice()) {
         Ok(_) => Ok(()),
-        Err(_) => Err(KurapikaError::VerifyFailure),
+        Err(_) => Err(KurapikaError::SignVerifyFailure),
     }
 }
 
@@ -152,5 +155,6 @@ fn get_hashed(data: &str) -> Vec<u8> {
         .take((hasher.output_bits() + 7) / 8)
         .collect();
     hasher.result(&mut hashed);
+
     hashed
 }

@@ -5,5 +5,7 @@ pub enum KurapikaError {
     GenerateKeyFailure,
     GetKeyFailure,
     SignFailure,
+    SignVerifyFailure,
     VerifyFailure,
+    ParseFailure,
 }
