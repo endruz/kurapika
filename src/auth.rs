@@ -71,14 +71,14 @@ pub fn get_cpu_id() -> Result<String, io::Error> {
     Ok(cpu_id)
 }
 
-/// 获取 GPU_ID
-pub fn get_gpu_id() -> Result<Vec<String>, io::Error> {
-    let command: String = "lspci | grep -i nvidia | awk '{print $1}'".to_string();
-    let output = Command::new("sh").arg("-c").arg(command).output()?;
-    let gpu_id: Vec<String> = String::from_utf8_lossy(&output.stdout)
-        .to_string()
-        .split_whitespace()
-        .map(String::from)
-        .collect();
-    Ok(gpu_id)
-}
+// /// 获取 GPU_ID
+// pub fn get_gpu_id() -> Result<Vec<String>, io::Error> {
+//     let command: String = "lspci | grep -i nvidia | awk '{print $1}'".to_string();
+//     let output = Command::new("sh").arg("-c").arg(command).output()?;
+//     let gpu_id: Vec<String> = String::from_utf8_lossy(&output.stdout)
+//         .to_string()
+//         .split_whitespace()
+//         .map(String::from)
+//         .collect();
+//     Ok(gpu_id)
+// }
