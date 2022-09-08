@@ -17,6 +17,7 @@ rsa = "0.6.1"
 hex = "0.4.3"
 toml = "0.5.9"
 serde = { version = "1.0.144", features = ["derive"] }
+chrono = "0.4.22"
 
 [features]
 default = ["generator", "validator"]

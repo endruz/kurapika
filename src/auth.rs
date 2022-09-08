@@ -3,6 +3,7 @@ use std::fmt;
 use std::process::Command;
 
 // External
+use chrono::{Local, NaiveDate};
 use serde::Deserialize;
 
 // Internal
@@ -16,7 +17,6 @@ pub struct AuthInfo {
     expire_date: String,
     base_board_id: String,
     cpu_id: String,
-    // gpu_id: Vec<String>,
 }
 
 impl AuthInfo {
@@ -55,7 +55,19 @@ impl AuthInfo {
         if self.cpu_id != get_cpu_id()? {
             return Err(KurapikaError::VerifyFailure);
         }
-        // TODO: 验证部署时间和过期时间
+        // 验证部署时间和过期时间
+        let now = Local::now().date_naive();
+        let deploy_date = match NaiveDate::parse_from_str(&self.deploy_date, "%Y-%m-%d") {
+            Ok(date) => date,
+            Err(_) => return Err(KurapikaError::VerifyFailure),
+        };
+        let expire_date = match NaiveDate::parse_from_str(&self.expire_date, "%Y-%m-%d") {
+            Ok(date) => date,
+            Err(_) => return Err(KurapikaError::VerifyFailure),
+        };
+        if deploy_date > now || now >= expire_date {
+            return Err(KurapikaError::VerifyFailure);
+        }
 
         Ok(())
     }
@@ -102,15 +114,3 @@ fn execute_cmd(cmd: &str) -> Result<String, KurapikaError> {
     let base_board_id: String = String::from_utf8_lossy(&output.stdout).trim().to_string();
     Ok(base_board_id)
 }
-
-// /// 获取 GPU_ID
-// pub fn get_gpu_id() -> Result<Vec<String>, io::Error> {
-//     let command: String = "lspci | grep -i nvidia | awk '{print $1}'".to_string();
-//     let output = Command::new("sh").arg("-c").arg(command).output()?;
-//     let gpu_id: Vec<String> = String::from_utf8_lossy(&output.stdout)
-//         .to_string()
-//         .split_whitespace()
-//         .map(String::from)
-//         .collect();
-//     Ok(gpu_id)
-// }
