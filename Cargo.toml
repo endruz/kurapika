@@ -3,14 +3,26 @@ name = "kurapika"
 version = "0.1.0"
 edition = "2021"
 authors = ["endruz <endruz@foxmail.com>"]
-description = ""
-repository = ""
+description = "A software license tool"
+repository = "https://github.com/endruz/kurapika"
 license = "MIT"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "kr-approver"
+path = "crates/approver/src/main.rs"
+
+[[bin]]
+name = "kr-checker"
+path = "crates/checker/src/main.rs"
+
+[workspace]
+members = [
+    "crates/kr",
+]
 
 [dependencies]
-clap = {version = "3.2.17", features = ["cargo"]}
+kr = { path = "crates/kr", version = "0.1.0" }
+clap = { version = "3.2.17", features = ["cargo"] }
 rand = "0.8.3"
 rust-crypto = "0.2.36"
 rsa = "0.6.1"
@@ -18,8 +30,3 @@ hex = "0.4.3"
 toml = "0.5.9"
 serde = { version = "1.0.144", features = ["derive"] }
 chrono = "0.4.22"
-
-[features]
-default = ["generator", "validator"]
-validator = []
-generator = []

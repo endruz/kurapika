@@ -7,4 +7,5 @@
 
 # cargo
 /target
+/tmp
 /.kurapika

@@ -70,41 +70,41 @@ fn get_public_key() -> Result<RsaPublicKey, KurapikaError> {
     }
 }
 
-// // 公钥加密，私钥解密
-// /// RSA只能加密小于（或等于）密钥长度的数据。
-// /// Encrypt
-// pub fn encrypt(text: &str) -> Result<String, KurapikaError> {
-//     let mut rng = rand::thread_rng();
-//     let public_key = get_public_key()?;
-//     let data = text.as_bytes();
-//     let padding = PaddingScheme::new_pkcs1v15_encrypt();
-//     let encrypted_data = match public_key.encrypt(&mut rng, padding, data) {
-//         Ok(data) => data,
-//         Err(_) => return Err(KurapikaError::EncryptionFailure)
-//     };
-//     let encrypt_message = hex::encode_upper(encrypted_data);
-//     Ok(encrypt_message)
-// }
+// 公钥加密，私钥解密
+/// RSA只能加密小于（或等于）密钥长度的数据。
+/// Encrypt
+pub fn encrypt(text: &str) -> Result<String, KurapikaError> {
+    let mut rng = rand::thread_rng();
+    let public_key = get_public_key()?;
+    let data = text.as_bytes();
+    let padding = PaddingScheme::new_pkcs1v15_encrypt();
+    let encrypted_data = match public_key.encrypt(&mut rng, padding, data) {
+        Ok(data) => data,
+        Err(_) => return Err(KurapikaError::EncryptionFailure),
+    };
+    let encrypt_message = hex::encode_upper(encrypted_data);
+    Ok(encrypt_message)
+}
 
-// /// Decrypt
-// pub fn decrypt(text: &str) -> Result<String, KurapikaError> {
-//     let encrypted_data = match hex::decode(text) {
-//         Ok(h) => h,
-//         Err(_) => return Err(KurapikaError::DecryptionFailure)
-//     };
-//     let private_key = get_private_key()?;
-//     let padding = PaddingScheme::new_pkcs1v15_encrypt();
-//     let decrypted_data = match private_key.decrypt(padding, encrypted_data.as_slice()) {
-//         Ok(data) => data,
-//         Err(_) => return Err(KurapikaError::DecryptionFailure)
-//     };
+/// Decrypt
+pub fn decrypt(text: &str) -> Result<String, KurapikaError> {
+    let encrypted_data = match hex::decode(text) {
+        Ok(h) => h,
+        Err(_) => return Err(KurapikaError::DecryptionFailure),
+    };
+    let private_key = get_private_key()?;
+    let padding = PaddingScheme::new_pkcs1v15_encrypt();
+    let decrypted_data = match private_key.decrypt(padding, encrypted_data.as_slice()) {
+        Ok(data) => data,
+        Err(_) => return Err(KurapikaError::DecryptionFailure),
+    };
 
-//     let decrypt_message = decrypted_data
-//         .iter()
-//         .map(|&c| c as char)
-//         .collect::<String>();
-//     Ok(decrypt_message)
-// }
+    let decrypt_message = decrypted_data
+        .iter()
+        .map(|&c| c as char)
+        .collect::<String>();
+    Ok(decrypt_message)
+}
 
 /// 私钥签名，公钥验签
 /// sign
