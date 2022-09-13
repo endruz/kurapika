@@ -1,10 +1,13 @@
 // Std
+use std::fs::File;
+use std::io::Read;
 
 // External
 
 // Internal
 use crate::ase;
 use crate::auth::AuthInfo;
+use crate::cfg;
 use crate::error::KurapikaError;
 use crate::rsa;
 
@@ -37,9 +40,21 @@ pub fn verify_auth_code(auth_code: &str) -> Result<(), KurapikaError> {
         Ok(obj) => obj,
         Err(_) => return Err(KurapikaError::VerifyFailure),
     };
-    // println!("auth_info: \n\n{}\n", auth_info);
     // 验证 AuthInfo 对象信息
     auth_info.verify()?;
 
     Ok(())
+}
+
+pub fn load_auth_code() -> Result<String, KurapikaError> {
+    let mut file = match File::open(cfg::AUTH_CODE_PATH) {
+        Ok(f) => f,
+        Err(_) => return Err(KurapikaError::LoadAuthCodeFailure),
+    };
+    let mut auth_code = String::new();
+    match file.read_to_string(&mut auth_code) {
+        Ok(_) => (),
+        Err(_) => return Err(KurapikaError::LoadAuthCodeFailure),
+    };
+    Ok(auth_code)
 }

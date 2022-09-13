@@ -9,4 +9,5 @@ pub enum KurapikaError {
     VerifyFailure,
     ParseFailure,
     SaveAuthCodeFailure,
+    LoadAuthCodeFailure,
 }
