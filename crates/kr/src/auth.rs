@@ -1,5 +1,7 @@
 // Std
 use std::fmt;
+use std::fs::File;
+use std::io::Read;
 use std::process::Command;
 
 // External
@@ -21,22 +23,41 @@ pub struct AuthInfo {
 
 impl AuthInfo {
     pub fn new(
-        app_name: String,
-        customer_name: String,
-        deploy_date: String,
-        expire_date: String,
+        app_name: &str,
+        customer_name: &str,
+        deploy_date: &str,
+        expire_date: &str,
     ) -> Result<AuthInfo, KurapikaError> {
         let base_board_id = get_base_board_id()?;
         let cpu_id = get_cpu_id()?;
 
         Ok(AuthInfo {
-            app_name,
-            customer_name,
-            deploy_date,
-            expire_date,
+            app_name: app_name.to_string(),
+            customer_name: customer_name.to_string(),
+            deploy_date: deploy_date.to_string(),
+            expire_date: expire_date.to_string(),
             base_board_id,
             cpu_id,
         })
+    }
+
+    pub fn register(path: &str) -> Result<AuthInfo, KurapikaError> {
+        let base_board_id = get_base_board_id()?;
+        let cpu_id = get_cpu_id()?;
+        let mut file = match File::open(path) {
+            Ok(f) => f,
+            Err(_) => return Err(KurapikaError::ParseFailure),
+        };
+        let mut contents = String::new();
+        match file.read_to_string(&mut contents) {
+            Ok(_) => (),
+            Err(_) => return Err(KurapikaError::ParseFailure),
+        };
+
+        AuthInfo::from_str(&format!(
+            "{}\nbase_board_id = \"{}\"\ncpu_id = \"{}\"",
+            contents, base_board_id, cpu_id
+        ))
     }
 
     pub fn from_str(s: &str) -> Result<AuthInfo, KurapikaError> {

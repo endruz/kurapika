@@ -19,7 +19,7 @@ fn aes128_ecb_encrypt(key: &[u8], data: &[u8]) -> Result<Vec<u8>, KurapikaError>
     match encrypt.encrypt(&mut read_buffer, &mut write_buffer, true) {
         Ok(_) => (),
         Err(_) => return Err(KurapikaError::EncryptionFailure),
-    }
+    };
 
     result.extend(
         write_buffer
@@ -41,7 +41,7 @@ fn aes128_ecb_decrypt(key: &[u8], data: &[u8]) -> Result<Vec<u8>, KurapikaError>
     match decrypt.decrypt(&mut read_buffer, &mut write_buffer, true) {
         Ok(_) => (),
         Err(_) => return Err(KurapikaError::DecryptionFailure),
-    }
+    };
 
     result.extend(
         write_buffer

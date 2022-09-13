@@ -8,4 +8,5 @@ pub enum KurapikaError {
     SignVerifyFailure,
     VerifyFailure,
     ParseFailure,
+    SaveAuthCodeFailure,
 }

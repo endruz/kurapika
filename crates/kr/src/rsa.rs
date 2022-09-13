@@ -11,11 +11,8 @@ use rsa::pkcs8::{
 use rsa::{hash::Hash, PaddingScheme, PublicKey, RsaPrivateKey, RsaPublicKey};
 
 // Internal
+use crate::cfg;
 use crate::error::KurapikaError;
-
-const DEFAULT_PATH: &str = ".kurapika";
-const PRIVATE_KEY_FILE_DEFAULT_PATH: &str = ".kurapika/id_rsa";
-const PUBLIC_KEY_FILE_DEFAULT_PATH: &str = ".kurapika/id_rsa.pub";
 
 pub fn generate_rsa_key(is_force: bool) -> Result<(), KurapikaError> {
     if !is_key_exist() || is_force {
@@ -29,21 +26,23 @@ pub fn generate_rsa_key(is_force: bool) -> Result<(), KurapikaError> {
         let public_key = RsaPublicKey::from(&private_key);
 
         // 创建 .kurapika
-        if !Path::new(DEFAULT_PATH).exists() {
-            match fs::create_dir(DEFAULT_PATH) {
+        if !Path::new(cfg::DEFAULT_PATH).exists() {
+            match fs::create_dir(cfg::DEFAULT_PATH) {
                 Ok(_) => (),
                 Err(_) => return Err(KurapikaError::GenerateKeyFailure),
             };
         }
 
         // 生成 id_rsa
-        match private_key.write_pkcs8_pem_file(PRIVATE_KEY_FILE_DEFAULT_PATH, LineEnding::LF) {
+        match private_key.write_pkcs8_pem_file(cfg::PRIVATE_KEY_FILE_DEFAULT_PATH, LineEnding::LF) {
             Ok(_) => (),
             Err(_) => return Err(KurapikaError::GenerateKeyFailure),
         };
 
         // 生成 id_rsa.pub
-        match public_key.write_public_key_pem_file(PUBLIC_KEY_FILE_DEFAULT_PATH, LineEnding::LF) {
+        match public_key
+            .write_public_key_pem_file(cfg::PUBLIC_KEY_FILE_DEFAULT_PATH, LineEnding::LF)
+        {
             Ok(_) => (),
             Err(_) => return Err(KurapikaError::GenerateKeyFailure),
         };
@@ -52,19 +51,19 @@ pub fn generate_rsa_key(is_force: bool) -> Result<(), KurapikaError> {
 }
 
 fn is_key_exist() -> bool {
-    Path::new(PRIVATE_KEY_FILE_DEFAULT_PATH).exists()
-        && Path::new(PUBLIC_KEY_FILE_DEFAULT_PATH).exists()
+    Path::new(cfg::PRIVATE_KEY_FILE_DEFAULT_PATH).exists()
+        && Path::new(cfg::PUBLIC_KEY_FILE_DEFAULT_PATH).exists()
 }
 
 fn get_private_key() -> Result<RsaPrivateKey, KurapikaError> {
-    match RsaPrivateKey::read_pkcs8_pem_file(PRIVATE_KEY_FILE_DEFAULT_PATH) {
+    match RsaPrivateKey::read_pkcs8_pem_file(cfg::PRIVATE_KEY_FILE_DEFAULT_PATH) {
         Ok(private_key) => Ok(private_key),
         Err(_) => Err(KurapikaError::GetKeyFailure),
     }
 }
 
 fn get_public_key() -> Result<RsaPublicKey, KurapikaError> {
-    match RsaPublicKey::read_public_key_pem_file(PUBLIC_KEY_FILE_DEFAULT_PATH) {
+    match RsaPublicKey::read_public_key_pem_file(cfg::PUBLIC_KEY_FILE_DEFAULT_PATH) {
         Ok(public_key) => Ok(public_key),
         Err(_) => Err(KurapikaError::GetKeyFailure),
     }
