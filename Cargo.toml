@@ -1,6 +1,6 @@
 [package]
 name = "kurapika"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["endruz <endruz@foxmail.com>"]
 description = "A software license tool"
@@ -9,19 +9,17 @@ license = "MIT"
 
 [[bin]]
 name = "kr-approver"
-path = "crates/approver/src/main.rs"
+path = "crates/approver/main.rs"
 
 [[bin]]
 name = "kr-checker"
-path = "crates/checker/src/main.rs"
+path = "crates/checker/main.rs"
 
-[workspace]
-members = [
-    "crates/kr",
-]
+[lib]
+name = "kr"
+path = "crates/kr/lib.rs"
 
 [dependencies]
-kr = { path = "crates/kr", version = "0.1.0" }
 clap = { version = "3.2.17", features = ["derive"] }
 rand = "0.8.3"
 rust-crypto = "0.2.36"

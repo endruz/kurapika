@@ -53,13 +53,33 @@ fn aes128_ecb_decrypt(key: &[u8], data: &[u8]) -> Result<Vec<u8>, KurapikaError>
     Ok(result)
 }
 
-/// 加密
+/// ASE encrypt data
+///
+/// # Examples
+///
+/// ```
+/// # use kr::ase::encrypt;
+/// let ase_key = "627D213B82BA2A28";
+/// let data = "hello world!";
+/// let encrypt_data = encrypt(ase_key, data).unwrap();
+/// assert_eq!(encrypt_data, String::from("2ECA0EBCC9E4DABEBEA7721E871DBAD9"))
+/// ```
 pub fn encrypt(key: &str, data: &str) -> Result<String, KurapikaError> {
     let encrypt_data = aes128_ecb_encrypt(key.as_bytes(), data.as_bytes())?;
     Ok(hex::encode_upper(encrypt_data))
 }
 
-/// 解密
+/// ASE decrypt data
+///
+/// # Examples
+///
+/// ```
+/// # use kr::ase::decrypt;
+/// let ase_key = "627D213B82BA2A28";
+/// let data = "2ECA0EBCC9E4DABEBEA7721E871DBAD9";
+/// let decrypt_data = decrypt(ase_key, data).unwrap();
+/// assert_eq!(decrypt_data, String::from("hello world!"))
+/// ```
 pub fn decrypt(key: &str, data: &str) -> Result<String, KurapikaError> {
     let data = match hex::decode(data) {
         Ok(h) => h,
@@ -72,8 +92,18 @@ pub fn decrypt(key: &str, data: &str) -> Result<String, KurapikaError> {
     }
 }
 
+/// Generate ASE key
+///
+/// # Examples
+///
+/// ```
+/// # use kr::ase::generate_ase_key;
+/// let ase_key = generate_ase_key();
+/// println!("{}", ase_key);
+/// assert_eq!(ase_key.len(), 16usize);
+/// ```
 pub fn generate_ase_key() -> String {
-    // 16, 24, 32 字节的 key 对应 KeySize128, KeySize192, KeySize256
+    // 16, 24, 32 bytes of key corresponding to KeySize128, KeySize192, KeySize256
     const ASE_KEY_LEN: usize = 16;
     const CHARSET: &[u8] = b"0123456789ABCDEF";
 

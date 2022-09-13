@@ -1,5 +1,6 @@
-// Module
-mod client;
+//! # kr-checker
+//!
+//! A command line tool for verifying authorization codes
 
 // Extern crate
 extern crate clap;
@@ -12,12 +13,16 @@ use clap::Parser;
 use kr::validator;
 
 // Internal
-use crate::client::Args;
+
+/// A structure to store arguments
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+pub struct Args {}
 
 fn main() {
-    // 获取参数
+    // Get arguments
     let _args = Args::parse();
-    // 加载授权码
+    // Load authorization code
     let auth_code = match validator::load_auth_code() {
         Ok(code) => code,
         Err(err) => {
@@ -25,7 +30,7 @@ fn main() {
             process::exit(1);
         }
     };
-    // 校验授权码
+    // Verify authorization code
     match validator::verify_auth_code(&auth_code) {
         Ok(_) => println!("Verification passed !!!"),
         Err(err) => {

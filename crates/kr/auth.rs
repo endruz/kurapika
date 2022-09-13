@@ -11,6 +11,7 @@ use serde::Deserialize;
 // Internal
 use crate::error::KurapikaError;
 
+/// A structure to store authentication information
 #[derive(Deserialize)]
 pub struct AuthInfo {
     app_name: String,
@@ -22,6 +23,7 @@ pub struct AuthInfo {
 }
 
 impl AuthInfo {
+    /// Create AuthInfo by specifying content
     pub fn new(
         app_name: &str,
         customer_name: &str,
@@ -41,6 +43,7 @@ impl AuthInfo {
         })
     }
 
+    /// Create AuthInfo based on registration files
     pub fn register(path: &str) -> Result<AuthInfo, KurapikaError> {
         let base_board_id = get_base_board_id()?;
         let cpu_id = get_cpu_id()?;
@@ -60,6 +63,7 @@ impl AuthInfo {
         ))
     }
 
+    /// Create AuthInfo based on str
     pub fn from_str(s: &str) -> Result<AuthInfo, KurapikaError> {
         match toml::from_str::<AuthInfo>(s) {
             Ok(auth_info) => Ok(auth_info),
@@ -68,15 +72,15 @@ impl AuthInfo {
     }
 
     pub fn verify(&self) -> Result<(), KurapikaError> {
-        // 验证 BASE_BOARD_ID
+        // Verify BASE_BOARD_ID
         if self.base_board_id != get_base_board_id()? {
             return Err(KurapikaError::VerifyFailure);
         }
-        // 验证 CPU_ID
+        // Verify CPU_ID
         if self.cpu_id != get_cpu_id()? {
             return Err(KurapikaError::VerifyFailure);
         }
-        // 验证部署时间和过期时间
+        // Verify deployment time and expiration time
         let now = Local::now().date_naive();
         let deploy_date = match NaiveDate::parse_from_str(&self.deploy_date, "%Y-%m-%d") {
             Ok(date) => date,
@@ -114,19 +118,19 @@ cpu_id = "{}""#,
     }
 }
 
-/// 获取 BASE_BOARD_ID
+/// Get BASE_BOARD_ID
 fn get_base_board_id() -> Result<String, KurapikaError> {
     const GET_BASE_BOARD_ID_CMD: &str = "dmidecode -t 2 | grep Serial | awk '{print $3}'";
     execute_cmd(GET_BASE_BOARD_ID_CMD)
 }
 
-/// 获取 CPU_ID
+/// Get CPU_ID
 fn get_cpu_id() -> Result<String, KurapikaError> {
     const GET_CPU_ID_CMD: &str = "dmidecode -t 4 | grep ID |sort -u |awk -F': ' '{print $2}'";
     execute_cmd(GET_CPU_ID_CMD)
 }
 
-/// 执行命令
+/// Execute command
 fn execute_cmd(cmd: &str) -> Result<String, KurapikaError> {
     let output = match Command::new("sh").arg("-c").arg(cmd).output() {
         Ok(out) => out,

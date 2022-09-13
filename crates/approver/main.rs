@@ -1,5 +1,6 @@
-// Module
-mod client;
+//! # kr-approver
+//!
+//! A command line tool to generate authorization code
 
 // Extern crate
 extern crate clap;
@@ -12,22 +13,34 @@ use clap::Parser;
 use kr::{generator, AuthInfo};
 
 // Internal
-use crate::client::Args;
+
+/// A structure to store arguments
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+pub struct Args {
+    /// Path to registration file
+    #[clap(value_parser)]
+    pub file: String,
+
+    /// Print authentication information
+    #[clap(short, long)]
+    pub show: bool,
+}
 
 fn main() {
-    // 获取参数
+    // Get arguments
     let args = Args::parse();
-    // 生成认证信息
+    // Generate authentication information
     let auth_info = AuthInfo::register(&args.file).unwrap_or_else(|err| {
         eprintln!("error: {:?}", err);
         process::exit(1);
     });
-    // 生成授权码
+    // Generate authorization code
     let auth_code = generator::generate_auth_code(&auth_info).unwrap_or_else(|err| {
         eprintln!("error: {:?}", err);
         process::exit(1);
     });
-    // 保存授权码
+    // Save authorization code
     generator::save_auth_code(&auth_code).unwrap_or_else(|err| {
         eprintln!("error: {:?}", err);
         process::exit(1);
