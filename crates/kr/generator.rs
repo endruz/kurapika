@@ -32,18 +32,16 @@ pub fn generate_auth_code(auth_info: &AuthInfo) -> Result<String, KurapikaError>
 pub fn save_auth_code(auth_code: &str) -> Result<(), KurapikaError> {
     // Create .kurapika
     if !Path::new(cfg::DEFAULT_PATH).exists() {
-        match fs::create_dir(cfg::DEFAULT_PATH) {
-            Ok(_) => (),
-            Err(_) => return Err(KurapikaError::SaveAuthCodeFailure),
-        };
+        if let Err(_) = fs::create_dir(cfg::DEFAULT_PATH) {
+            return Err(KurapikaError::SaveAuthCodeFailure);
+        }
     }
     let mut file = match fs::File::create(cfg::AUTH_CODE_PATH) {
         Ok(f) => f,
         Err(_) => return Err(KurapikaError::SaveAuthCodeFailure),
     };
-    match file.write_all(auth_code.as_bytes()) {
-        Ok(_) => (),
-        Err(_) => return Err(KurapikaError::SaveAuthCodeFailure),
-    };
+    if let Err(_) = file.write_all(auth_code.as_bytes()) {
+        return Err(KurapikaError::SaveAuthCodeFailure);
+    }
     Ok(())
 }

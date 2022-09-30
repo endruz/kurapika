@@ -50,9 +50,8 @@ pub fn load_auth_code() -> Result<String, KurapikaError> {
         Err(_) => return Err(KurapikaError::LoadAuthCodeFailure),
     };
     let mut auth_code = String::new();
-    match file.read_to_string(&mut auth_code) {
-        Ok(_) => (),
-        Err(_) => return Err(KurapikaError::LoadAuthCodeFailure),
-    };
+    if let Err(_) = file.read_to_string(&mut auth_code) {
+        return Err(KurapikaError::LoadAuthCodeFailure);
+    }
     Ok(auth_code)
 }

@@ -28,25 +28,24 @@ pub fn generate_rsa_key(is_force: bool) -> Result<(), KurapikaError> {
 
         // Create .kurapika
         if !Path::new(cfg::DEFAULT_PATH).exists() {
-            match fs::create_dir(cfg::DEFAULT_PATH) {
-                Ok(_) => (),
-                Err(_) => return Err(KurapikaError::GenerateKeyFailure),
-            };
+            if let Err(_) = fs::create_dir(cfg::DEFAULT_PATH) {
+                return Err(KurapikaError::GenerateKeyFailure);
+            }
         }
 
         // Generate id_rsa
-        match private_key.write_pkcs8_pem_file(cfg::PRIVATE_KEY_FILE_DEFAULT_PATH, LineEnding::LF) {
-            Ok(_) => (),
-            Err(_) => return Err(KurapikaError::GenerateKeyFailure),
-        };
+        if let Err(_) =
+            private_key.write_pkcs8_pem_file(cfg::PRIVATE_KEY_FILE_DEFAULT_PATH, LineEnding::LF)
+        {
+            return Err(KurapikaError::GenerateKeyFailure);
+        }
 
         // Generate id_rsa.pub
-        match public_key
-            .write_public_key_pem_file(cfg::PUBLIC_KEY_FILE_DEFAULT_PATH, LineEnding::LF)
+        if let Err(_) =
+            public_key.write_public_key_pem_file(cfg::PUBLIC_KEY_FILE_DEFAULT_PATH, LineEnding::LF)
         {
-            Ok(_) => (),
-            Err(_) => return Err(KurapikaError::GenerateKeyFailure),
-        };
+            return Err(KurapikaError::GenerateKeyFailure);
+        }
     }
     Ok(())
 }

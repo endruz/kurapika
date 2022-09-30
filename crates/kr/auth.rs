@@ -52,10 +52,9 @@ impl AuthInfo {
             Err(_) => return Err(KurapikaError::ParseFailure),
         };
         let mut contents = String::new();
-        match file.read_to_string(&mut contents) {
-            Ok(_) => (),
-            Err(_) => return Err(KurapikaError::ParseFailure),
-        };
+        if let Err(_) = file.read_to_string(&mut contents) {
+            return Err(KurapikaError::ParseFailure);
+        }
 
         AuthInfo::from_str(&format!(
             "{}\nbase_board_id = \"{}\"\ncpu_id = \"{}\"",

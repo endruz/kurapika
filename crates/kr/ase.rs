@@ -16,10 +16,9 @@ fn aes128_ecb_encrypt(key: &[u8], data: &[u8]) -> Result<Vec<u8>, KurapikaError>
     let mut buffer = [0; 4096];
     let mut write_buffer = RefWriteBuffer::new(&mut buffer);
 
-    match encrypt.encrypt(&mut read_buffer, &mut write_buffer, true) {
-        Ok(_) => (),
-        Err(_) => return Err(KurapikaError::EncryptionFailure),
-    };
+    if let Err(_) = encrypt.encrypt(&mut read_buffer, &mut write_buffer, true) {
+        return Err(KurapikaError::EncryptionFailure);
+    }
 
     result.extend(
         write_buffer
@@ -38,10 +37,9 @@ fn aes128_ecb_decrypt(key: &[u8], data: &[u8]) -> Result<Vec<u8>, KurapikaError>
     let mut buffer = [0; 4096];
     let mut write_buffer = RefWriteBuffer::new(&mut buffer);
 
-    match decrypt.decrypt(&mut read_buffer, &mut write_buffer, true) {
-        Ok(_) => (),
-        Err(_) => return Err(KurapikaError::DecryptionFailure),
-    };
+    if let Err(_) = decrypt.decrypt(&mut read_buffer, &mut write_buffer, true) {
+        return Err(KurapikaError::DecryptionFailure);
+    }
 
     result.extend(
         write_buffer
